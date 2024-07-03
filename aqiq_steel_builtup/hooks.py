@@ -2,7 +2,7 @@ app_name = "aqiq_steel_builtup"
 app_title = "AQIQ Steel Built-Up"
 app_publisher = "AQIQ"
 app_description = "AQIQ Steel Built-Up"
-app_email = "jenan_fh95@hotmail.com"
+app_email = "info@aqiqsolutions.com"
 app_license = "mit"
 # required_apps = []
 
@@ -24,11 +24,23 @@ app_license = "mit"
 # webform_include_js = {"doctype": "public/js/doctype.js"}
 # webform_include_css = {"doctype": "public/css/doctype.css"}
 
+fixtures = [
+    {"dt": "Custom Field", "or_filters": [
+		["dt", "=", "Item"],
+		["dt", "=", "Sales Order"],
+		["dt", "=", "Sales Order Item"],
+	]},
+	{"dt": "Property Setter", "or_filters": [
+		["doc_type", "=", "Sales Order Item"],
+	]},
+]
 # include js in page
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {
+    "Sales Order" : "public/js/doctype/sales_order.js",
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -114,21 +126,19 @@ app_license = "mit"
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	"Sales Order": "aqiq_steel_builtup.overrides.sales_order.CustomSalesOrder"
+}
 
 # Document Events
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Item": {
+        "validate": "aqiq_steel_builtup.overrides.item.validate_item"
+    }
+}
 
 # Scheduled Tasks
 # ---------------
