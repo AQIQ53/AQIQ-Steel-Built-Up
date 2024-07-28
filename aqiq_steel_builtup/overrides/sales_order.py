@@ -163,3 +163,26 @@ def get_components(item, selling_price_list, transaction_date = None, customer =
         comps.append(comp_item)
 
     return comps
+
+@frappe.whitelist()
+def get_item_details(item_code, price_list, transaction_date = None, customer = None, company = None):
+    results = {}
+
+    results["item_name"] = frappe.db.get_value("Item", item_code, "item_name")
+
+    if not company:
+        company = get_default_company()
+
+    results["rate"] = get_price_list_rate_for({
+        "price_list": price_list,
+        "uom": frappe.db.get_value("Item", item_code, "stock_uom"),
+        "transaction_date": transaction_date,
+        "customer": customer
+    }, item_code) or 0
+
+    results["cost"] = get_valuation_rate({
+        "item_code": item_code,
+        "company": company,
+    })
+
+    return results

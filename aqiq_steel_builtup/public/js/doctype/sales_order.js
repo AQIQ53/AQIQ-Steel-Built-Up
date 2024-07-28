@@ -53,7 +53,36 @@ frappe.ui.form.on("Sales Order", {
                             "label": "Item Code",
                             "options": "Item",
                             "reqd": 1,
-                            "columns": 1
+                            "columns": 1,
+                            change: function(){
+                                const me = this;
+                                frappe.call({
+                                    "method": "aqiq_steel_builtup.overrides.sales_order.get_item_details",
+                                    "args": {
+                                        "item_code": me.value,
+                                        "price_list": frm.doc.selling_price_list,
+                                        "customer": frm.doc.customer,
+                                        "transaction_date": frm.doc.transaction_date,
+                                        "company": frm.doc.company
+                                    },
+                                    callback: function(r){
+                                        if (r.message){
+                                            me.doc.item_name = r.message.item_name;
+                                            me.doc.qty = 1;
+                                            me.doc.cost = r.message.cost;
+                                            me.doc.cost_amount = me.doc.cost;
+                                            me.doc.rate = r.message.rate;
+                                            me.doc.amount = me.doc.rate;
+                                            me.doc.surface_area = 1;
+                                            me.doc.surface_area_amount = 1;
+                                            me.doc.parent_item = item_code;
+                                            frm.events.calculate_total_surface_amount(d)
+                                            d.refresh();
+                                        }
+                                    }
+                                })
+                                
+                            }
                            },
                            {
                             "fetch_from": "item_code.item_name",
@@ -182,6 +211,7 @@ frappe.ui.form.on("Sales Order", {
                 }
 			],
 			primary_action: function() {
+                frm.events.calculate_total_surface_amount(d);
 				var data = d.get_values();
                 frappe.call({
                     method: "aqiq_steel_builtup.overrides.sales_order.update_components",
