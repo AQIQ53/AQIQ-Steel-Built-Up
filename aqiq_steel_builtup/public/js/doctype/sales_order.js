@@ -244,6 +244,14 @@ frappe.ui.form.on("Sales Order", {
                             });
                             // frm.set_value("to_set_components", 0);
                             refresh_field("components");
+                            frm.call({
+                                method: "set_totals",
+                                doc: frm.doc,
+                                callback: function(){
+                                    refresh_field("items");
+                                }
+            
+                            })
                             d.hide();
                         }
                     }
@@ -338,6 +346,8 @@ frappe.ui.form.on("Sales Order", {
             }
         }).then((r) => {
             if(r.message) {
+                let rate = 0;
+                let base_rate = 0;
                 r.message.forEach((comp) => {
                     var c = frm.add_child("components");
                     c.item_code = comp.item_code
@@ -355,8 +365,19 @@ frappe.ui.form.on("Sales Order", {
                     c.cost_amount = comp.base_cost_amount / frm.doc.conversion_rate
                     c.base_cost = comp.base_cost
                     c.base_cost_amount = comp.base_cost
+
+                    rate += c.amount;
+                    base_rate += c.base_amount; 
                 })
                 refresh_field("components");
+                setTimeout(() => {
+                    frappe.model.set_value(row.doctype, row.name, "custom_is_a_cmi", 1);
+
+                    frappe.model.set_value(row.doctype, row.name, "rate", rate);
+                    frappe.model.set_value(row.doctype, row.name, "base_rate", base_rate);
+                    frappe.model.set_value(row.doctype, row.name, "custom_default_rate", rate);
+                    frappe.model.set_value(row.doctype, row.name, "custom_base_default_rate", base_rate);
+                }, 200)
             }
         });
 
@@ -388,7 +409,21 @@ frappe.ui.form.on("Sales Order Item", {
     },
     items_remove: function(frm, cdt, cdn){
         frm.events.set_components(frm, null, "delete")
-    }
+    },
+    price_list_rate: function(frm, cdt, cdn){
+        let row = locals[cdt][cdn];
+        if (!row.custom_is_a_cmi) frappe.model.set_value(cdt, cdn, "custom_default_rate", row.price_list_rate);
+    },
+    custom_item_discount: function(frm, cdt, cdn){
+        let row = locals[cdt][cdn];
+        if (row.rate)
+            frappe.model.set_value(cdt, cdn, "rate", row.custom_default_rate - row.custom_item_discount - row.custom_rate_extra_charge)
+    },
+    custom_rate_extra_charge: function(frm, cdt, cdn){
+        let row = locals[cdt][cdn];
+        if (row.rate)
+            frappe.model.set_value(cdt, cdn, "rate", row.custom_default_rate - row.custom_item_discount - row.custom_rate_extra_charge)
+    },
 })
 
 const calculate_qty = function(width, height, pcs){
