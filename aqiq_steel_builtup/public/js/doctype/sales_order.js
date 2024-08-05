@@ -370,6 +370,7 @@ frappe.ui.form.on("Sales Order", {
                     base_rate += c.base_amount; 
                 })
                 refresh_field("components");
+                frappe.dom.freeze()
                 setTimeout(() => {
                     frappe.model.set_value(row.doctype, row.name, "custom_is_a_cmi", 1);
 
@@ -377,7 +378,8 @@ frappe.ui.form.on("Sales Order", {
                     frappe.model.set_value(row.doctype, row.name, "base_rate", base_rate);
                     frappe.model.set_value(row.doctype, row.name, "custom_default_rate", rate);
                     frappe.model.set_value(row.doctype, row.name, "custom_base_default_rate", base_rate);
-                }, 200)
+                    frappe.dom.unfreeze()
+                }, 1000)
             }
         });
 
