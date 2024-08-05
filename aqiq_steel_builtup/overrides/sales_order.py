@@ -12,28 +12,43 @@ class CustomSalesOrder(SalesOrder):
         # self.set_components()
         self.set_totals()
 
+    @frappe.whitelist()
     def set_totals(self):
         for item in self.items:
-            item.rate = 0
-            item.base_rate = 0
-            for comp in self.components:
-                if comp.parent_name == item.name_id:
-                    if not comp.cost: comp.cost = 0
+            if item.custom_is_a_cmi:
+                item.rate = 0
+                item.base_rate = 0
+                for comp in self.components:
+                    if comp.parent_name == item.name_id:
+                        if not comp.cost: comp.cost = 0
 
-                    if not comp.rate: comp.rate = 0
+                        if not comp.rate: comp.rate = 0
 
-                    comp.base_rate = comp.rate * self.conversion_rate
-                    comp.amount = comp.rate * comp.qty
-                    comp.base_amount = comp.amount * self.conversion_rate
+                        comp.base_rate = comp.rate * self.conversion_rate
+                        comp.amount = comp.rate * comp.qty
+                        comp.base_amount = comp.amount * self.conversion_rate
 
-                    comp.base_cost = comp.cost * self.conversion_rate
-                    comp.cost_amount = comp.cost * comp.qty
-                    comp.base_cost_amount = comp.cost_amount * self.conversion_rate
+                        comp.base_cost = comp.cost * self.conversion_rate
+                        comp.cost_amount = comp.cost * comp.qty
+                        comp.base_cost_amount = comp.cost_amount * self.conversion_rate
 
 
-                    item.rate += comp.amount if comp.get("amount") else 0
+                        item.rate += comp.amount if comp.get("amount") else 0
 
-                    item.base_rate += comp.base_amount if comp.get("base_amount") else 0
+                        item.base_rate += comp.base_amount if comp.get("base_amount") else 0
+                
+            item.custom_default_rate = item.rate
+            item.custom_base_default_rate = item.base_rate
+            
+            if item.custom_item_discount:
+                item.rate = item.rate - item.custom_item_discount
+                item.base_rate = item.rate * self.conversion_rate
+            
+            if item.custom_rate_extra_charge:
+                item.rate = item.rate - item.custom_rate_extra_charge
+                item.base_rate = item.rate * self.conversion_rate
+
+            if not item.qty: item.qty = 1
 
             item.amount = item.rate * item.qty
             item.base_amount = item.base_rate * item.qty
