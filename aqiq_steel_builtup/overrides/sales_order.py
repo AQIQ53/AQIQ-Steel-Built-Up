@@ -45,7 +45,7 @@ class CustomSalesOrder(SalesOrder):
                 item.base_rate = item.rate * self.conversion_rate
             
             if item.custom_rate_extra_charge:
-                item.rate = item.rate - item.custom_rate_extra_charge
+                item.rate = item.rate + item.custom_rate_extra_charge
                 item.base_rate = item.rate * self.conversion_rate
 
             if not item.qty: item.qty = 1

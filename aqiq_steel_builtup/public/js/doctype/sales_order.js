@@ -389,17 +389,17 @@ frappe.ui.form.on("Sales Order", {
 })
 
 frappe.ui.form.on("Sales Order Item", {
-    height: function(frm, cdt, cdn){
+    custom_height_mm: function(frm, cdt, cdn){
         const row = locals[cdt][cdn]
-        frappe.model.set_value(cdt, cdn, "qty", calculate_qty(row.width, row.height, row.pcs));
+        frappe.model.set_value(cdt, cdn, "qty", calculate_qty(row.custom_width_mm, row.custom_height_mm, row.custom_pcs));
     },
-    width: function(frm, cdt, cdn){
+    custom_width_mm: function(frm, cdt, cdn){
         const row = locals[cdt][cdn]
-        frappe.model.set_value(cdt, cdn, "qty", calculate_qty(row.width, row.height, row.pcs));
+        frappe.model.set_value(cdt, cdn, "qty", calculate_qty(row.custom_width_mm, row.custom_height_mm, row.custom_pcs));
     },
-    pcs: function(frm, cdt, cdn){
+    custom_pcs: function(frm, cdt, cdn){
         const row = locals[cdt][cdn]
-        frappe.model.set_value(cdt, cdn, "qty", calculate_qty(row.width, row.height, row.pcs));
+        frappe.model.set_value(cdt, cdn, "qty", calculate_qty(row.custom_width_mm, row.custom_height_mm, row.custom_pcs));
     },
     item_code: function(frm, cdt, cdn){
         const row = locals[cdt][cdn];
@@ -419,12 +419,12 @@ frappe.ui.form.on("Sales Order Item", {
     custom_item_discount: function(frm, cdt, cdn){
         let row = locals[cdt][cdn];
         if (row.rate)
-            frappe.model.set_value(cdt, cdn, "rate", row.custom_default_rate - row.custom_item_discount - row.custom_rate_extra_charge)
+            frappe.model.set_value(cdt, cdn, "rate", row.custom_default_rate - row.custom_item_discount + row.custom_rate_extra_charge)
     },
     custom_rate_extra_charge: function(frm, cdt, cdn){
         let row = locals[cdt][cdn];
         if (row.rate)
-            frappe.model.set_value(cdt, cdn, "rate", row.custom_default_rate - row.custom_item_discount - row.custom_rate_extra_charge)
+            frappe.model.set_value(cdt, cdn, "rate", row.custom_default_rate - row.custom_item_discount + row.custom_rate_extra_charge)
     },
 })
 
